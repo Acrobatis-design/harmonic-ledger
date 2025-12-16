@@ -271,3 +271,129 @@ The Harmonic Ledger commits to the following architectural principles:
 - Failure must remain local.
 - No single variable must control security, governance, and economics simultaneously.
 
+---
+---
+
+## 21. Threat Model
+
+This section defines the adversarial assumptions under which the Harmonic Ledger
+protocol is expected to remain safe, usable, and decentralized.
+
+The threat model is explicit and conservative. Any security claim made by the protocol
+is valid only within these assumptions.
+
+---
+
+## 21.1 Adversary Classes
+
+The protocol considers the following classes of adversaries:
+
+### A1. Economic Adversaries
+Actors seeking to extract profit through:
+- MEV strategies (front-running, sandwiching, reordering),
+- market manipulation,
+- liquidation cascades,
+- censorship for economic advantage.
+
+These adversaries may control substantial capital and infrastructure.
+
+### A2. Cartel Adversaries
+Coalitions of validators, operators, or infrastructure providers attempting to:
+- coordinate transaction ordering,
+- control block inclusion,
+- dominate liquidity or governance,
+- establish long-lived privileged positions.
+
+### A3. Network Adversaries
+Actors capable of:
+- delaying or dropping messages,
+- causing partial network partitions,
+- exploiting network-level asymmetries,
+but not breaking cryptographic primitives.
+
+### A4. Key Compromise Adversaries
+Attackers who may:
+- compromise individual user keys,
+- compromise some validator or operator keys,
+- exploit operational security failures.
+
+Mass simultaneous compromise of all threshold participants is considered unlikely
+but not impossible.
+
+### A5. Governance Adversaries
+Actors attempting to:
+- capture governance mechanisms,
+- exploit voter apathy,
+- introduce protocol changes that weaken invariants.
+
+---
+
+## 21.2 Explicit Assumptions
+
+The protocol assumes:
+
+A. Standard cryptographic primitives (hash functions, signatures, encryption)
+   are computationally secure.
+
+B. Adversaries do not control a supermajority of all independent authority roles
+   across the entire system simultaneously.
+
+C. Network asynchrony is partial, not total (messages are eventually delivered).
+
+D. Not all users, validators, or operators are malicious simultaneously.
+
+E. Some degree of rational behavior exists, but worst-case coordination is assumed
+   where economically viable.
+
+---
+
+## 21.3 Out-of-Scope Threats
+
+The protocol does NOT attempt to protect against:
+
+- Total global internet shutdown.
+- Complete cryptographic break (e.g. hash/signature primitives).
+- Simultaneous compromise of all independent threshold participants.
+- Adversaries with unlimited computational and physical resources.
+
+Such threats are considered outside the realistic operating domain.
+
+---
+
+## 21.4 Security Goals Under Adversarial Conditions
+
+Under the above threat model, the protocol aims to guarantee:
+
+G1. **Safety:** finalized state transitions are not reverted.
+G2. **Bounded MEV:** no adversary can extract value from pre-commit transaction knowledge.
+G3. **Censorship Resistance:** no single actor or cartel can indefinitely censor transactions.
+G4. **Decentralization:** no persistent privileged role can be established.
+G5. **Failure Containment:** failures remain local and do not cascade system-wide.
+G6. **Recoverability:** limited key compromise does not lead to catastrophic loss.
+
+---
+
+## 21.5 Design Responses to Threats
+
+The protocol responds to identified threats as follows:
+
+- Encrypted pre-commit transaction intake limits MEV from orderflow visibility.
+- Authority separation prevents single-role dominance.
+- Non-stationary committee rotation limits cartel persistence.
+- Causal Domains localize contention and failure.
+- Threshold-native custody reduces single-key catastrophic risk.
+- Governance separation prevents token-majority capture of invariants.
+
+---
+
+## 21.6 Residual Risks
+
+The following risks are acknowledged but not fully eliminated:
+
+- Cross-venue arbitrage (CEX–DEX latency differences).
+- Post-reveal MEV strategies.
+- Social coordination attacks outside the protocol.
+- Human error in implementation and operations.
+
+These risks are considered manageable and bounded within the protocol design.
+
