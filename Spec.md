@@ -396,4 +396,138 @@ The following risks are acknowledged but not fully eliminated:
 - Human error in implementation and operations.
 
 These risks are considered manageable and bounded within the protocol design.
+---
+
+## 22. Execution Model
+
+This section defines how transactions are interpreted, how state is represented,
+how conflicts are detected, and how execution proceeds within the Harmonic Ledger.
+
+The execution model is intentionally explicit to avoid hidden global ordering
+assumptions and to enable safe parallelism.
+
+---
+
+## 22.1 State Model
+
+The global protocol state is composed of discrete **state objects**.
+
+A state object is any uniquely identifiable unit of mutable state, such as:
+- an account balance,
+- a smart contract instance,
+- a liquidity position,
+- a governance or system parameter object.
+
+Each state object has:
+- a unique identifier,
+- a current version,
+- a deterministic transition function.
+
+State objects are the minimal units of conflict.
+
+---
+
+## 22.2 Transaction Structure
+
+A transaction consists of:
+
+- **Inputs:** references to one or more state objects.
+- **Intents:** declared operations to be performed on those objects.
+- **Read Set:** state objects whose current values are read.
+- **Write Set:** state objects whose values are modified.
+- **Fee Commitment:** a bounded fee envelope.
+- **Encrypted Payload:** operation details hidden prior to commitment.
+
+Transactions must explicitly declare their read and write sets.
+
+---
+
+## 22.3 Conflict Definition
+
+Two transactions are said to **conflict** if and only if:
+
+- their write sets intersect, or
+- one transaction writes to a state object that the other reads.
+
+Transactions whose read and write sets are disjoint are non-conflicting
+and may be executed in parallel without ordering constraints.
+
+---
+
+## 22.4 Causal Domains (CDs)
+
+A **Causal Domain (CD)** is defined as a dynamically formed set of state objects
+that are currently involved in conflicting transactions.
+
+Properties:
+
+- Transactions are assigned to a CD based on their declared read/write sets.
+- Each CD maintains its own ordering and execution context.
+- CDs may merge when conflicts span previously separate domains.
+- CDs may split when conflict graphs become disconnected.
+
+No global ordering exists across independent CDs.
+
+---
+
+## 22.5 Transaction Lifecycle
+
+The lifecycle of a transaction proceeds as follows:
+
+1. **Submission:** the user submits an encrypted transaction with declared read/write sets.
+2. **Admission:** the transaction is admitted if format, fees, and declarations are valid.
+3. **CD Assignment:** the transaction is assigned to a Causal Domain.
+4. **Ordering:** transactions within a CD are ordered deterministically.
+5. **Execution:** ordered transactions are executed against state objects.
+6. **Finality:** executed transitions are finalized and become irreversible.
+
+---
+
+## 22.6 Deterministic Execution
+
+Execution within a CD must satisfy:
+
+- Determinism: identical ordered inputs produce identical state transitions.
+- No hidden side effects: execution affects only declared write-set objects.
+- Explicit failure: failed execution must be detectable and attributable.
+
+Execution engines must not rely on implicit global state.
+
+---
+
+## 22.7 Parallelism Guarantees
+
+The protocol guarantees:
+
+- Parallel execution of non-conflicting transactions.
+- Independent progress of distinct CDs.
+- Localized rollback or failure handling.
+
+Global stalls caused by local contention are explicitly prohibited.
+
+---
+
+## 22.8 Execution Failure Handling
+
+If a transaction fails during execution:
+
+- its effects are discarded,
+- it does not block unrelated transactions,
+- failure is recorded for auditability.
+
+Repeated failure patterns may be subject to policy controls
+(e.g. rate limits or fee penalties).
+
+---
+
+## 22.9 Implementation Notes (Non-Normative)
+
+Possible implementation approaches include:
+
+- Optimistic parallel execution with conflict checks.
+- Pre-declared access lists enforced at admission.
+- DAG-based execution within CDs.
+
+The specific execution engine is left to implementation choice,
+provided all invariants defined in this specification are preserved.
 
