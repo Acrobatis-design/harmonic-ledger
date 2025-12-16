@@ -530,4 +530,178 @@ Possible implementation approaches include:
 
 The specific execution engine is left to implementation choice,
 provided all invariants defined in this specification are preserved.
+---
+
+## 23. Cryptographic Plumbing and Information Flow
+
+This section defines how cryptography is used to control information flow,
+prevent pre-commit orderflow leakage, and bound extractable value.
+
+The design principle is explicit:
+information must not be visible before it becomes non-actionable.
+
+---
+
+## 23.1 Cryptographic Objectives
+
+The cryptographic subsystem must ensure:
+
+C1. Transaction contents are not visible prior to commitment.
+C2. No single party can decrypt transactions unilaterally.
+C3. Decryption occurs only after ordering becomes binding.
+C4. Ordering can be verified independently of transaction secrecy.
+C5. Randomness used in ordering cannot be biased by participants.
+
+---
+
+## 23.2 Encrypted Transaction Submission
+
+Each transaction submitted to the protocol consists of:
+
+- A **cleartext header**, containing:
+  - declared read set,
+  - declared write set,
+  - fee commitment,
+  - transaction size metadata.
+
+- An **encrypted payload**, containing:
+  - operation details,
+  - parameters,
+  - signatures and authorization data.
+
+The encrypted payload is encrypted using a **threshold public key**
+associated with the relevant authority committee.
+
+No authority may access plaintext transaction contents
+before the reveal phase.
+
+---
+
+## 23.3 Admission Receipts (Pre-Commit Acknowledgement)
+
+Upon successful admission, the protocol issues a **public admission receipt**
+containing:
+
+- a commitment hash of the encrypted payload,
+- a timestamp or logical sequence marker,
+- the assigned Causal Domain identifier.
+
+Admission receipts provide users with a verifiable guarantee
+that the transaction has entered the system
+without revealing its contents.
+
+Admission receipts do not imply ordering or finality.
+
+---
+
+## 23.4 Commit–Reveal Lifecycle
+
+The protocol enforces a strict commit–reveal separation:
+
+1. **Commit Phase**
+   - Encrypted transactions are accepted and committed.
+   - Ordering authorities see only commitments and metadata.
+   - No plaintext transaction data is accessible.
+
+2. **Ordering Phase**
+   - Transactions within a Causal Domain are ordered
+     based on commitments, declared sets, and deterministic rules.
+   - Randomness may be used only as a tie-breaker.
+
+3. **Reveal Phase**
+   - After ordering is fixed, threshold decryption is performed.
+   - Plaintext transaction contents are revealed to execution authorities.
+
+This ordering-before-reveal property is mandatory.
+
+---
+
+## 23.5 Threshold Decryption Model
+
+Decryption is performed via a threshold scheme:
+
+- A decryption key is split among multiple independent participants.
+- A quorum of shares is required to reconstruct plaintext.
+- No single participant can decrypt alone.
+
+Key rotation must occur periodically to limit long-term compromise risk.
+
+Failure of individual participants must not block progress,
+provided quorum assumptions hold.
+
+---
+
+## 23.6 Randomness Generation
+
+Randomness used for ordering tie-breaks and committee rotation must satisfy:
+
+- Unpredictability prior to commitment.
+- Verifiability after use.
+- Resistance to single-party manipulation.
+
+Acceptable sources include:
+- threshold-generated randomness,
+- verifiable random functions (VRFs),
+- commit–reveal randomness schemes with penalties for non-reveal.
+
+Randomness sources must not depend on transaction plaintext.
+
+---
+
+## 23.7 Information Visibility Matrix
+
+At no point may any single actor observe all of the following simultaneously:
+
+- plaintext transaction contents,
+- transaction ordering discretion,
+- final execution authority.
+
+The protocol enforces separation such that:
+
+- Admission authorities see ciphertext only.
+- Ordering authorities see commitments and metadata only.
+- Decryption authorities act only after ordering is fixed.
+- Execution authorities receive plaintext only post-reveal.
+
+This separation is fundamental to MEV boundedness.
+
+---
+
+## 23.8 Failure Modes and Safeguards
+
+If threshold decryption fails due to insufficient participation:
+
+- fallback procedures may be triggered,
+- penalties or slashing may apply to non-participating authorities,
+- alternative decryption committees may be activated.
+
+Fallbacks must not reintroduce cleartext mempools
+or discretionary plaintext access.
+
+---
+
+## 23.9 Explicit Prohibitions
+
+The following are explicitly prohibited:
+
+- Cleartext transaction gossip prior to commitment.
+- Single-key decryption of user transactions.
+- Ordering based on plaintext content.
+- Randomness derived from transaction data.
+
+---
+
+## 23.10 Security Rationale
+
+By enforcing encryption before ordering and reveal after ordering,
+the protocol eliminates pre-commit information asymmetry.
+
+This structurally bounds:
+- front-running,
+- sandwich attacks,
+- private orderflow exploitation,
+- builder and relay cartels.
+
+Residual MEV after reveal is acknowledged but bounded.
+
 
