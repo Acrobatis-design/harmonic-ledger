@@ -824,3 +824,141 @@ A minimal practical DA design may include:
 
 The DA layer may be native or external, but must not require trust
 in any single off-chain party.
+
+---
+
+## 25. Committee Economics and Incentives
+
+This section defines how authority committees are selected, incentivized,
+and disciplined, with the explicit goal of preventing bribery,
+cartel formation, and passive non-participation.
+
+The protocol prioritizes structural deterrence over purely economic incentives.
+
+---
+
+## 25.1 Committee Roles and Scope
+
+Committees are formed separately for each authority role, including but not limited to:
+
+- Admission Committees
+- Decryption Committees
+- Ordering Committees
+- Execution Committees
+- Finality Committees
+
+No committee controls more than one authority role within the same Causal Domain.
+
+---
+
+## 25.2 Selection and Rotation
+
+Committee membership must satisfy the following:
+
+- Selection is pseudo-random and verifiable.
+- Membership is temporary and rotates frequently.
+- Rotation schedules are non-stationary to prevent predictable timing attacks.
+
+Participants must not be able to reliably predict long-term committee assignments.
+
+---
+
+## 25.3 Participation Requirements
+
+Committee members are required to:
+
+- remain online during assigned windows,
+- perform their role within protocol-defined time bounds,
+- produce verifiable outputs (e.g., signatures, shares, proofs).
+
+Failure to participate is observable and attributable.
+
+---
+
+## 25.4 Incentive Model
+
+The incentive model follows these principles:
+
+- Rewards are proportional to correct participation, not discretionary power.
+- Rewards are small and continuous, discouraging rent-seeking behavior.
+- No single committee role yields outsized economic returns.
+
+Incentives are designed to cover operational costs and provide modest compensation,
+not to enable dominance or capture.
+
+---
+
+## 25.5 Penalties and Discipline
+
+Misbehavior or non-participation triggers penalties, which may include:
+
+- loss of pending rewards,
+- temporary suspension from future committees,
+- permanent exclusion for repeated or severe violations.
+
+Penalties must be attributable, automatic where possible,
+and proportionate to the violation.
+
+---
+
+## 25.6 Anti-Bribery and Anti-Capture Measures
+
+The protocol explicitly seeks to make bribery unprofitable by design:
+
+- Committee roles are short-lived and unpredictable.
+- Authority is fragmented across roles and domains.
+- Information needed to exploit a role is incomplete and time-limited.
+
+Bribery attempts must require coordination across multiple independent committees
+to have systemic effect.
+
+---
+
+## 25.7 Liveness Guarantees
+
+To prevent stalling:
+
+- Committees must have redundancy (N > quorum).
+- Fallback procedures may replace unresponsive members.
+- Chronic non-participation is penalized.
+
+Fallbacks must not reintroduce centralized control.
+
+---
+
+## 25.8 Economic Isolation Between Domains
+
+Economic incentives and penalties are scoped locally:
+
+- Misbehavior in one Causal Domain does not directly affect unrelated domains.
+- Rewards and penalties are applied at the smallest effective scope.
+
+This limits the blast radius of economic attacks.
+
+---
+
+## 25.9 Governance Interaction
+
+Committee economics are not subject to rapid governance changes.
+
+Any modification to:
+- reward levels,
+- penalty thresholds,
+- rotation parameters,
+
+must be:
+- slow,
+- bounded,
+- publicly announced in advance.
+
+---
+
+## 25.10 Design Rationale
+
+By minimizing discretionary power, shortening authority windows,
+and fragmenting control across independent roles and domains,
+the protocol reduces the feasibility of cartel formation
+and makes bribery economically unattractive.
+
+Correct behavior becomes the simplest and least risky strategy.
+
