@@ -178,3 +178,96 @@ The following areas require further specification and research:
 
 This specification is a draft.
 It defines structure and intent but not a finalized implementation.
+
+---
+
+## 15. Authority Separation Model
+
+The protocol separates authority into independent functional roles in order to prevent
+persistent power concentration and cartel formation.
+
+The following authority roles are defined:
+
+- **Admission Authority**: accepts encrypted transactions and issues admission receipts.
+- **Decryption Authority**: performs threshold decryption of committed batches.
+- **Ordering Authority**: determines transaction order within a Causal Domain.
+- **Execution Authority**: executes state transitions deterministically.
+- **Finality Authority**: finalizes ordered state transitions.
+
+No single entity or committee may simultaneously control more than one authority role
+within the same Causal Domain.
+
+Authority roles rotate over time using non-stationary schedules.
+
+---
+
+## 16. Committee Rotation and Time Structure
+
+Authority committees rotate according to non-fixed schedules designed to prevent
+predictable phase-locking and long-term coordination.
+
+Time is treated as a logical variable rather than a fixed global clock.
+
+Rotation schedules may include:
+- randomized epoch boundaries,
+- bounded jitter,
+- and non-constant rotation intervals.
+
+Exact rotation mechanisms are implementation-dependent but must satisfy Invariant I4
+(Decentralization).
+
+---
+
+## 17. Fee and Congestion Control (Stability Principle)
+
+Fees are designed to regulate load, not to allocate priority.
+
+The protocol aims to remain over-damped under congestion:
+
+- sudden demand spikes must not produce runaway fee escalation,
+- local congestion must not propagate globally,
+- and recovery from overload must be smooth.
+
+Fee mechanisms must prioritize variance minimization and tail-risk control
+over short-term revenue maximization.
+
+---
+
+## 18. Emergency Powers and Failure Containment
+
+The protocol may define limited emergency mechanisms to contain catastrophic failures.
+
+Emergency mechanisms must satisfy:
+
+- explicit activation criteria,
+- multi-party authorization,
+- time delays where feasible,
+- public transparency and post-mortem requirements.
+
+Emergency mechanisms must not allow discretionary control over user funds
+or protocol invariants.
+
+---
+
+## 19. Explicit Prohibitions
+
+The following design choices are explicitly prohibited:
+
+- Global cleartext mempools.
+- Auction-based transaction ordering.
+- Permanent privileged proposer roles.
+- Governance mechanisms based solely on token-majority voting.
+- Emergency actions without public justification.
+
+---
+
+## 20. Architectural Commitments
+
+The Harmonic Ledger commits to the following architectural principles:
+
+- Causality precedes chronology.
+- Information precedes power.
+- Stability precedes efficiency.
+- Failure must remain local.
+- No single variable must control security, governance, and economics simultaneously.
+
