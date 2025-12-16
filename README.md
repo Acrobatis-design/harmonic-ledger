@@ -27,4 +27,4 @@ This is an early-stage research and engineering project.
 ## Disclaimer
 
 This repository is for research and development purposes only.
-Nothing herein constitutes an offer, investment solicitation, or financial advice.
+Nothing herein constitutes an offer, investment solicitation, or financial advice. 
