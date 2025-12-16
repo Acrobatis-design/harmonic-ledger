@@ -704,4 +704,123 @@ This structurally bounds:
 
 Residual MEV after reveal is acknowledged but bounded.
 
+---
 
+## 24. Data Availability and Finality Coupling
+
+This section defines when transaction data is considered available,
+how data withholding is detected, and how finality is coupled to data availability.
+
+The core principle is strict:
+
+**No state transition may be finalized unless the data required to validate and
+re-execute it is publicly available.**
+
+---
+
+## 24.1 Data Availability (DA) Definition
+
+For the purposes of this protocol, data is considered *available* if:
+
+- the full ordered batch data (or sufficient reconstruction data) is published to the DA layer,
+- independent observers can retrieve it within bounded time,
+- and the publication is accompanied by a verifiable commitment.
+
+DA is evaluated independently of execution correctness.
+
+---
+
+## 24.2 DA Commitments
+
+For each ordered batch within a Causal Domain, the protocol must publish:
+
+- a commitment to the batch data (e.g., a Merkle root),
+- the data itself (or erasure-coded fragments sufficient for reconstruction),
+- and metadata required to locate and verify the data.
+
+Commitments must be included in the finalized record.
+
+---
+
+## 24.3 Availability Window and Timing
+
+A batch is eligible for finality only if:
+
+- its data has been published to the DA layer, and
+- an **availability window** has elapsed during which data retrieval has been possible.
+
+The availability window must be chosen such that:
+- honest observers can download the data under normal network conditions,
+- and withholding attempts are detectable.
+
+---
+
+## 24.4 Data Withholding Detection
+
+The protocol must support detection of withheld data via at least one of:
+
+- explicit DA sampling by observers,
+- fraud proofs / missing data proofs,
+- erasure coding with reconstruction thresholds.
+
+If data cannot be retrieved within the availability window,
+the batch must be considered **not available**.
+
+---
+
+## 24.5 Coupling Rule: Finality Requires Availability
+
+Finality authorities must apply the following rule:
+
+- If a batch is not available, it must not be finalized.
+- If a finalized batch is later proven unavailable (due to fraud or withholding proof),
+  the protocol must trigger a predefined recovery and penalty procedure.
+
+Finality without availability is explicitly prohibited.
+
+---
+
+## 24.6 Penalties and Accountability
+
+If withholding is detected:
+
+- responsible authorities (by role) must be penalized.
+- penalties may include slashing, removal from committees,
+  and loss of future participation eligibility.
+
+Penalties must be attributable and enforceable.
+
+---
+
+## 24.7 Failure Containment
+
+DA failures must remain local:
+
+- a DA failure affecting one Causal Domain must not stall unrelated domains,
+  except where explicitly required by cross-domain causal dependencies.
+
+The protocol must avoid global halts.
+
+---
+
+## 24.8 Cross-Domain Dependencies
+
+If a state transition in CD_A depends on data from CD_B:
+
+- CD_A finality is blocked until CD_B data availability is established,
+- but unrelated CDs continue independently.
+
+Dependencies must be explicit and proof-carrying.
+
+---
+
+## 24.9 Minimal DA Requirements (Non-Normative)
+
+A minimal practical DA design may include:
+
+- erasure-coded batch data published to a DA plane,
+- sampling by a large set of independent light clients,
+- and a mechanism to prove unavailability.
+
+The DA layer may be native or external, but must not require trust
+in any single off-chain party.
